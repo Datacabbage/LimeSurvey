@@ -23,10 +23,11 @@ var LSSlider = function (options) {
         setPosition = options.setPosition || '',
         custom_handle = options.custom_handle || null,
         settings = {
+            labelledby: options.labelElement || null,
             value: options.value || null,
-            min: options.min || '0',
-            max: options.max || '1',
-            step: options.step || '1',
+            min: (typeof options.min != 'undefined') ? options.min : 0,
+            max: (typeof options.max != 'undefined') ? options.max : 100,
+            step: options.step || 1,
             orientation: options.orientation || 'horizontal',
             handle: options.handle || '',
             tooltip: options.tooltip || '',
@@ -96,21 +97,18 @@ var LSSlider = function (options) {
 
         },
         setValue = function (value) {
-            value = value || position;
-            sliderObject.setValue(position, true, true);
+            value = value || parseFloat(position);
+            sliderObject.setValue(value, true, true);
             elementObject.val(value.toString().replace('.', separator)).trigger('keyup');
             writeToRootElement(value);
             triggerChanges();
         },
 
         triggerChanges = function () {
-            try{
-                ExprMgr_process_relevance_and_tailoring('keyup', rootElementName, 'change');
-            } catch(e) {
-                console.ls.warn(e);
-                rootElementObject.trigger('change');
-                rootElementObject.trigger('keyup');
-            }
+            rootElementObject.trigger('change');
+            rootElementObject.trigger('keyup');
+            sliderObject.$sliderElem.find('div.tooltip').show();
+            sliderObject.$sliderElem.removeClass('slider-untouched').addClass('slider-touched');
             if (debugMode > 0) {
                 console.ls.log('sliderDebug triggered change', rootElementObject);
             }
@@ -132,14 +130,12 @@ var LSSlider = function (options) {
                 /* Position slider button at position */
                 listItemObject.find('.slider-container').removeClass('slider-touched').addClass('slider-reset');
                 sliderObject.$sliderElem.removeClass('slider-touched').addClass('slider-reset');
-                rootElementObject.addClass('slider-untouched');
                 setValue(null, true, true);
                 /* if don't set position : reset to '' */
                 if (!setPosition) {
-                    listItemObject.find('div.tooltip').hide();
-                    elementObject.val('').trigger('keyup');
-                } else {
-                    elementObject.trigger('keyup');
+                    sliderObject.$sliderElem.removeClass('slider-touched').addClass('slider-untouched');
+                    sliderObject.$sliderElem.find('div.tooltip').hide();
+                    rootElementObject.val('').trigger('keyup');
                 }
             });
         },
@@ -155,12 +151,18 @@ var LSSlider = function (options) {
                customStyleSheet.appendTo('body');
                 // document.styleSheets[0].addRule('#' + elementObject.attr('id') + ' .slider-handle.custom::before', '{ content: "' + custom_handle + '" }');
             }
-            
             sliderObject = new Slider(elementObject[0], createSliderSettings());
-            sliderObject.$sliderElem.addClass('slider-untouched');
-            triggerChanges();
-            
-            
+            if(rootElementObject.val() === "") {
+                setValue(null, true, true);
+                if (!setPosition) {
+                    sliderObject.$sliderElem.removeClass('slider-touched').addClass('slider-untouched');
+                    sliderObject.$sliderElem.find('div.tooltip').hide();
+                    rootElementObject.val('').trigger('keyup');
+                }
+            } else {
+                sliderObject.setValue(rootElementObject.val().toString().replace(separator,'.'), true, true);
+            }
+
             if (debugMode > 0) {
                 console.ls.log('sliderDebug slider created', sliderObject);
                 console.ls.log('sliderDebug slider settings', sliderSettings);

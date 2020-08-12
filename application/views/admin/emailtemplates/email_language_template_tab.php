@@ -17,8 +17,12 @@ $script = array();
     <div class="row">
         <div class='form-group col-sm-12'>
             <label class=' control-label' for='email_<?php echo $tab; ?>_<?php echo $grouplang; ?>'><?php echo $details['body']; ?></label>
-            <div class=''>
-                <?php
+            <?php if(getEmailFormat($surveyid) != 'html') { ?>
+                <div class="">
+            <?php }else{ ?>
+                <div class="htmleditor input-group">
+            <?php } ?>
+            <?php
                 $sBodyField=$details['field']['body'];
                 echo CHtml::textArea("email_".$tab."_".$grouplang,$esrow->$sBodyField,array('cols'=>80,'rows'=>20, 'class'=>'form-control')); ?>
                 <?php echo getEditor("email_".$tab."_".$grouplang, "email_".$tab."_".$grouplang, $details['body'].'('.$grouplang.')',$surveyid,'','','editemailtemplates'); ?>
@@ -31,7 +35,7 @@ $script = array();
             <label class=' control-label'><?php et('Actions:');?></label>
             <div class=''>
                 <a class='btn btn-default' id="validate_expression_<?=$grouplang?>_<?=$tab?>" data-parent-element="#in_survey_common" data-target="modal" data-remote-link="<?=App()->createUrl('admin/validate',['sa'=>'email','sid'=>$surveyid,'lang'=>$grouplang,'type'=>$tab])?>" data-footer="false" data-modal-title="<?=$details['title']?>" > 
-                    <?=gT("Validate expressions")?> 
+                    <?=gT("Validate ExpressionScript")?> 
                 </a> 
                 <?php
                 $details['default']['body']=($tab=='admin_detailed_notification') ? $details['default']['body'] : conditionalNewlineToBreak($details['default']['body'],$ishtml) ;
@@ -92,8 +96,8 @@ $script = array();
 <table id="rowTemplate" class="hidden">
     <tr>
         <td>
-            <button class="btn btn-xs btn-danger btnattachmentremove" title="<?php eT('Remove attachment')?>" class="btnattachmentremove text-warning" data-toggle="tooltip" data-placement="bottom" title="<?php eT('Remove attachment')?>">
-                <i class="fa fa-trash"></i>
+            <button class="btn btn-xs btn-danger btnattachmentremove" title="<?php eT('Remove attachment')?>" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-trash" aria-hidden="true"></i><span class="sr-only"><?php eT('Remove attachment')?></span>
             </button>
         </td>
         <td>
@@ -105,15 +109,15 @@ $script = array();
         </td>
         <td>
             <span class="relevance"></span>
-            <button class="btn btn-xs btn-default edit-relevance-equation" title="<?php eT('Edit relevance equation') ?>" class="edit-relevance-equation" data-toggle="tooltip" data-placement="bottom" title="<?php eT('Edit relevance equation') ?>">
-                <i class="fa fa-pencil"></i>
+            <button class="btn btn-xs btn-default edit-relevance-equation" title="<?php eT('Edit condition') ?>" data-toggle="tooltip" data-placement="bottom">
+                <i class="fa fa-pencil" aria-hidden="true"></i><span class="sr-only"><?php eT('Edit condition')?></span>
             </button>
             <input class="relevance" type="hidden">
         </td>
     </tr>
 </table>
 
-<?php                 
+<?php
 
 App()->getClientScript()->registerScript("ScriptEmailTemplateLanguageTemplate_<?=$grouplang?>_<?=$tab?>", "
     var prepEmailTemplates = PrepEmailTemplates();\n

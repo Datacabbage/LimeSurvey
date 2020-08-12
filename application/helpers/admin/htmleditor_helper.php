@@ -17,6 +17,7 @@
     //Security Checked: POST/GET/SESSION/DB/returnGlobal
     function initKcfinder()
     {
+        return;
         Yii::app()->session['KCFINDER'] = array();
 
         $sAllowedExtensions = implode(' ', array_map('trim', explode(',', Yii::app()->getConfig('allowedresourcesuploads'))));
@@ -39,14 +40,9 @@
                     preg_match('/^edit:assessments/', Yii::app()->session['FileManagerContext']) != 0 ||
                     preg_match('/^edit:emailsettings/', Yii::app()->session['FileManagerContext']) != 0) {
                 $contextarray = explode(':', Yii::app()->session['FileManagerContext'], 3);
-
-
-$surveyid = $contextarray[2];
-
+                $surveyid = $contextarray[2];
 
                 if (Permission::model()->hasSurveyPermission($surveyid, 'surveycontent', 'update')) {
-
-
                     if (Yii::app()->getConfig('uniq_upload_dir')){
                         $surveyid = 'uniq';
                     }
@@ -117,6 +113,11 @@ $surveyid = $contextarray[2];
      */
     function PrepareEditorScript($load = false, $controller = null)
     {
+        return;
+                
+        App()->getClientScript()->registerPackage('ckeditor'); //
+        App()->getClientScript()->registerPackage('ckeditoradditions'); // CKEDITOR in a global sope
+        
         if ($controller == null) {
             $controller = Yii::app()->getController();
         }
@@ -131,7 +132,7 @@ $surveyid = $contextarray[2];
     function getEditor($fieldtype, $fieldname, $fieldtext, $surveyID = null, $gID = null, $qID = null, $action = null)
     {
 
-
+        return;
         if (Yii::app()->getConfig('uniq_upload_dir') && !empty($surveyID)){
             $surveyID = 'uniq';
         }
@@ -146,12 +147,12 @@ $surveyid = $contextarray[2];
 
 
         if (!$session['htmleditormode'] || ($session['htmleditormode'] != 'inline' && $session['htmleditormode'] != 'popup')) {
-                $htmleditormode = Yii::app()->getConfig('defaulthtmleditormode');
+            $htmleditormode = Yii::app()->getConfig('defaulthtmleditormode');
         } else {
             $htmleditormode = $session['htmleditormode'];
         }
-        if ($surveyID && getEmailFormat($surveyID) != 'html' && substr($fieldtype, 0, 6) === "email-") {
-// email but survey as text email
+        if ($surveyID && getEmailFormat($surveyID) != 'html' && (substr($fieldtype, 0, 6) === "email_" || substr($fieldtype, 0, 6) === "email-" )) {
+            // email but survey as text email
             return '';
         }
 
@@ -166,7 +167,7 @@ $surveyid = $contextarray[2];
 
     function getPopupEditor($fieldtype, $fieldname, $fieldtext, $surveyID = null, $gID = null, $qID = null, $action = null)
     {
-
+        return;
         if (Yii::app()->getConfig('uniq_upload_dir') && !empty($surveyID)){
             $surveyID = 'uniq';
         }
@@ -193,6 +194,7 @@ $surveyid = $contextarray[2];
 
     function getInlineEditor($fieldtype, $fieldname, $fieldtext, $surveyID = null, $gID = null, $qID = null, $action = null)
     {
+        return;
         if (Yii::app()->getConfig('uniq_upload_dir') && !empty($surveyID)){
             $surveyID = 'uniq';
         }
@@ -218,15 +220,11 @@ $surveyid = $contextarray[2];
             }
         }
 
-        if ($fieldtype == 'email-invitation' ||
-        $fieldtype == 'email-registration' ||
-        $fieldtype == 'email-confirmation' ||
-        $fieldtype == 'email-admin_notification' ||
-        $fieldtype == 'email-admin_detailed_notification' ||
-        $fieldtype == 'email-reminder') {
+        /* fieldtype have language at end , set fullpage for email HTML edit */
+        if (substr($fieldtype, 0, 6) === 'email_') {
             $htmlformatoption = ",fullPage:true\n";
+            //~ $htmlformatoption = ",allowedContent:true\n"; // seems uneeded 
         }
-
         if ($surveyID == '') {
             $sFakeBrowserURL = Yii::app()->getController()->createUrl('admin/survey/sa/fakebrowser');
             $sFileBrowserAvailable = ",filebrowserBrowseUrl:'{$sFakeBrowserURL}'
